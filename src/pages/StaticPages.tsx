@@ -4,7 +4,7 @@ export function About() {
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-6">
       <h1 className="text-3xl font-bold mb-6">About PartShare</h1>
-      <div className="card p-6 bg-white space-y-4 text-gray-700">
+      <div className="card p-6 sm:p-10 space-y-4 text-gray-700 dark:text-gray-300 border-white/20 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl">
         <p>
           PartShare was built with a simple mission: to help university students and DIY makers share leftover electronic and mechanical parts instead of throwing them away or buying new ones.
         </p>
@@ -23,7 +23,7 @@ export function HowItWorks() {
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-6">
       <h1 className="text-3xl font-bold mb-6">How It Works</h1>
-      <div className="card p-6 bg-white space-y-6 text-gray-700">
+      <div className="card p-6 sm:p-10 space-y-6 text-gray-700 dark:text-gray-300 border-white/20 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl">
         <div>
           <h3 className="text-xl font-semibold mb-2">1. Browse or Search</h3>
           <p>Looking for a specific motor, sensor, or microcontroller? Search the "Available" tab to see if someone on campus is giving it away, lending it, or swapping it.</p>
@@ -49,7 +49,7 @@ export function Rules() {
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-6">
       <h1 className="text-3xl font-bold mb-6">Community Rules & Safety</h1>
-      <div className="card p-6 bg-white space-y-4 text-gray-700">
+      <div className="card p-6 sm:p-10 space-y-4 text-gray-700 dark:text-gray-300 border-white/20 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl">
         <ul className="list-disc pl-6 space-y-3">
           <li><strong>No illegal or dangerous items:</strong> Do not post hazardous materials, chemicals, weapons, or any illegal items.</li>
           <li><strong>Meet in public:</strong> Always arrange to meet in public, well-lit campus spots (like the library, student union, or makerspace) during daylight hours.</li>
@@ -66,7 +66,7 @@ export function Privacy() {
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-6">
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
-      <div className="card p-6 bg-white space-y-4 text-gray-700">
+      <div className="card p-6 sm:p-10 space-y-4 text-gray-700 dark:text-gray-300 border-white/20 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl">
         <h3 className="text-xl font-semibold mt-4">What we store</h3>
         <p>We store your Google display name, your provided WhatsApp number, your location preference, and the posts you create. We also log when you click "Contact" on a post to prevent spam and rate-limit requests.</p>
         

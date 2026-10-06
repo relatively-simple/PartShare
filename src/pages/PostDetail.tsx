@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { MessageCircle, Share2, AlertTriangle, MapPin, Calendar, Clock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -100,127 +101,132 @@ export function PostDetail() {
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-6">
       {!isAvailable && (
-        <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg flex items-center gap-2">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 p-4 rounded-xl flex items-center gap-3 shadow-sm">
           <AlertTriangle size={20} />
           <span className="font-medium">This post is no longer available.</span>
-        </div>
+        </motion.div>
       )}
 
-      <div className="card p-6 bg-white">
-        <div className="flex items-center gap-3 mb-4">
-          <span className={`px-3 py-1 rounded-full text-sm font-bold ${post.type === 'offer' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}`}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="card p-6 sm:p-10 border-white/20 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-400 to-amber-500"></div>
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          <span className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-sm ${post.type === 'offer' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300'}`}>
             {post.type.toUpperCase()}
           </span>
           <CategoryChip category={post.category} />
           {post.quantity > 1 && (
-            <span className="bg-gray-100 text-gray-700 text-sm font-semibold px-3 py-1 rounded-full">
+            <span className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-semibold px-4 py-1.5 rounded-full shadow-sm">
               Quantity: {post.quantity}
             </span>
           )}
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{post.title}</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-4 tracking-tight">{post.title}</h1>
         
         {post.model_number && (
-          <div className="font-mono text-gray-600 bg-gray-50 inline-block px-2 py-1 rounded mb-4">
-            Model: {post.model_number}
+          <div className="font-mono text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 inline-block px-3 py-1.5 rounded-lg mb-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            Model: <span className="font-bold text-gray-900 dark:text-gray-200">{post.model_number}</span>
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-8">
           {post.condition && (
-            <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-200 text-sm font-medium">
+            <span className="px-4 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full border border-blue-200 dark:border-blue-800/50 text-sm font-medium">
               Condition: {CONDITIONS.find(c => c.value === post.condition)?.label || post.condition}
             </span>
           )}
           {post.share_modes?.map(mode => (
-            <span key={mode} className="px-3 py-1 bg-green-50 text-green-700 rounded-full border border-green-200 text-sm font-medium capitalize">
+            <span key={mode} className="px-4 py-1.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full border border-green-200 dark:border-green-800/50 text-sm font-medium capitalize">
               Will {mode}
             </span>
           ))}
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4 mb-6 space-y-3">
-          <div className="flex items-center gap-2 text-gray-700">
-            <MapPin size={18} className="text-gray-400" />
-            <span>{post.location}</span>
+        <div className="bg-gray-50/80 dark:bg-gray-800/50 rounded-2xl p-5 mb-8 space-y-4 border border-gray-100 dark:border-gray-700/50 shadow-inner">
+          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+            <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm"><MapPin size={20} className="text-brand-500" /></div>
+            <span className="text-lg">{post.location}</span>
           </div>
           {post.type === 'request' && post.needed_by && (
-            <div className="flex items-center gap-2 text-gray-700">
-              <Calendar size={18} className="text-gray-400" />
-              <span>Needed by: <span className="font-medium">{formatDate(post.needed_by)}</span></span>
+            <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+              <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm"><Calendar size={20} className="text-blue-500" /></div>
+              <span>Needed by: <span className="font-semibold text-gray-900 dark:text-gray-100">{formatDate(post.needed_by)}</span></span>
             </div>
           )}
-          <div className="flex items-center gap-2 text-gray-700">
-            <Clock size={18} className="text-gray-400" />
-            <span>Posted {timeAgo(post.created_at)} by <span className="font-medium">{post.author_name}</span></span>
+          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+            <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm"><Clock size={20} className="text-gray-400" /></div>
+            <span>Posted {timeAgo(post.created_at)} by <span className="font-semibold text-gray-900 dark:text-gray-100">{post.author_name}</span></span>
           </div>
         </div>
 
         {post.details && (
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-2">Details</h3>
-            <p className="text-gray-700 whitespace-pre-wrap">{post.details}</p>
+          <div className="mb-10">
+            <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">Details</h3>
+            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed bg-white/40 dark:bg-gray-800/40 p-6 rounded-2xl border border-gray-100 dark:border-gray-700/50">{post.details}</p>
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row gap-4 border-t pt-6">
+        <div className="flex flex-col sm:flex-row gap-4 border-t border-gray-200 dark:border-gray-800 pt-8">
           {!isOwner && isAvailable && (
-            <button 
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleContact} 
               disabled={contactLoading}
-              className="btn-primary flex-1 py-3 text-lg flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white border-none"
+              className="btn-primary flex-1 py-4 text-lg flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white border-none shadow-lg shadow-[#25D366]/20 rounded-xl"
             >
-              <MessageCircle size={22} />
+              <MessageCircle size={24} />
               {contactLoading ? 'Loading...' : 'Contact on WhatsApp'}
-            </button>
+            </motion.button>
           )}
           
-          <button 
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleShare}
-            className="btn-secondary flex-1 py-3 text-lg flex items-center justify-center gap-2"
+            className="btn-secondary flex-1 py-4 text-lg flex items-center justify-center gap-2 rounded-xl"
           >
-            <Share2 size={22} />
+            <Share2 size={24} />
             Share
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       {matches.length > 0 && (
-        <div className="mt-12">
-          <h2 className="text-xl font-bold mb-4 border-b pb-2">Possible Matches</h2>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-16">
+          <h2 className="text-2xl font-extrabold mb-6 border-b border-gray-200 dark:border-gray-800 pb-4 text-gray-900 dark:text-gray-100">Possible Matches</h2>
           <div className="space-y-4">
             {matches.map(m => (
               <PostCard key={m.id} post={m} />
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {!isOwner && (
-        <div className="text-center mt-8">
-          <button onClick={() => setShowReport(true)} className="text-sm text-gray-500 hover:text-red-600 flex items-center gap-1 mx-auto">
-            <AlertTriangle size={14} /> Report this post
+        <div className="text-center mt-12 pb-8">
+          <button onClick={() => setShowReport(true)} className="text-sm font-medium text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1 mx-auto bg-gray-50 dark:bg-gray-900/50 px-4 py-2 rounded-full">
+            <AlertTriangle size={16} /> Report this post
           </button>
         </div>
       )}
 
       {showReport && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Report Post</h3>
-            <p className="text-sm text-gray-600 mb-4">Please describe why you are reporting this post.</p>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">Report Post</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">Please describe why you are reporting this post.</p>
             <textarea 
-              className="input-field w-full h-24 mb-4" 
+              className="input-field w-full h-32 mb-6 resize-none" 
               placeholder="Reason for report..."
               value={reportReason}
               onChange={(e) => setReportReason(e.target.value)}
             />
-            <div className="flex gap-3">
-              <button onClick={() => setShowReport(false)} className="btn-secondary flex-1">Cancel</button>
-              <button onClick={handleReport} className="btn-danger flex-1">Submit</button>
+            <div className="flex gap-4">
+              <button onClick={() => setShowReport(false)} className="btn-secondary flex-1 py-3 rounded-xl">Cancel</button>
+              <button onClick={handleReport} className="btn-danger flex-1 py-3 rounded-xl">Submit Report</button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>

@@ -126,7 +126,7 @@ export function Home() {
   const noFiltersActive = !searchQuery && !categoryFilter && !locationFilter && !shareModeFilter;
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-4xl mx-auto p-4 space-y-8">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full mx-auto space-y-8">
       {noFiltersActive && (
         <motion.div 
           initial={{ y: 20, opacity: 0 }} 
@@ -218,7 +218,7 @@ export function Home() {
         </div>
       </div>
 
-      <motion.div layout className="space-y-4">
+      <motion.div layout className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         <AnimatePresence mode="popLayout">
           {posts.map(post => (
             <motion.div 
@@ -228,8 +228,11 @@ export function Home() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
+              className="h-full flex"
             >
-              <PostCard post={post} />
+              <div className="w-full flex-1">
+                <PostCard post={post} />
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>

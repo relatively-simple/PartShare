@@ -42,8 +42,9 @@ export function Onboarding() {
     e.preventDefault();
     if (!user) return;
     
+    let parsedData;
     try {
-      profileSchema.parse(formData);
+      parsedData = profileSchema.parse(formData);
       setErrors({});
     } catch (err: any) {
       const newErrors: Record<string, string> = {};
@@ -55,13 +56,13 @@ export function Onboarding() {
     }
     
     setLoading(true);
-    const digits = formData.whatsapp.replace(/[^\d]/g, '');
+    const digits = parsedData.whatsapp.replace(/[^\d]/g, '');
     
     const { error } = await supabase.from('profiles').insert({
       id: user.id,
-      display_name: formData.display_name,
+      display_name: parsedData.display_name,
       whatsapp: digits,
-      location: formData.location
+      location: parsedData.location
     });
     
     setLoading(false);

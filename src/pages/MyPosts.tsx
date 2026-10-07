@@ -55,15 +55,15 @@ export function MyPosts() {
   const handleProfileSave = async () => {
     try {
       // Validate minus consent
-      profileSchema.parse({ ...profileData, consent: true });
-      const digits = profileData.whatsapp.replace(/[^\d]/g, '');
+      const parsedData = profileSchema.parse({ ...profileData, consent: true });
+      const digits = parsedData.whatsapp.replace(/[^\d]/g, '');
       
       const { error } = await supabase
         .from('profiles')
         .update({
-          display_name: profileData.display_name,
+          display_name: parsedData.display_name,
           whatsapp: digits,
-          location: profileData.location
+          location: parsedData.location
         })
         .eq('id', user!.id);
         
@@ -118,7 +118,7 @@ export function MyPosts() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-8">
+    <div className="w-full mx-auto space-y-8">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card p-6 sm:p-8 border-white/20 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">My Profile</h2>
@@ -164,7 +164,7 @@ export function MyPosts() {
               <EmptyState icon={<Package size={32} />} title="No posts yet" description="Share parts you don't need or request parts you're looking for." />
             </motion.div>
           ) : (
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {posts.map((post, index) => {
                 const daysExp = daysUntil(post.expires_at);
                 const isNearExpiry = daysExp <= 7;

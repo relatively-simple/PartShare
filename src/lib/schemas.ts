@@ -2,7 +2,15 @@ import { z } from 'zod';
 
 export const profileSchema = z.object({
   display_name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be at most 50 characters'),
-  whatsapp: z.string().regex(/^\+\d{8,15}$/, 'Enter a valid WhatsApp number in international format (e.g. +919876543210)'),
+  whatsapp: z.preprocess((val) => {
+    if (typeof val !== 'string') return val;
+    let s = val.trim().replace(/[^\d+]/g, '');
+    if (s && !s.startsWith('+')) {
+      if (s.startsWith('0')) s = s.substring(1);
+      s = '+94' + s;
+    }
+    return s;
+  }, z.string().regex(/^\+\d{8,15}$/, 'Enter a valid WhatsApp number (e.g. 077... or +94...)')),
   location: z.string().min(1, 'Location is required').max(80, 'Location must be at most 80 characters'),
   consent: z.literal(true, { errorMap: () => ({ message: 'You must agree to continue' }) }),
 });

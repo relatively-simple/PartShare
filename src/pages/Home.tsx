@@ -15,7 +15,8 @@ export function Home() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   
-  const tab = searchParams.get('tab') === 'request' ? 'request' : 'offer';
+  const tabParam = searchParams.get('tab');
+  const tab = tabParam === 'request' ? 'request' : 'offer';
   const searchQuery = searchParams.get('q') || '';
   const categoryFilter = searchParams.get('cat') || '';
   const locationFilter = searchParams.get('loc') || '';
@@ -23,7 +24,7 @@ export function Home() {
   const sortFilter = searchParams.get('sort') || 'newest';
 
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // don't load initially if landing
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(0);
   const [uniqueLocations, setUniqueLocations] = useState<string[]>([]);
@@ -49,6 +50,8 @@ export function Home() {
   };
 
   const fetchPosts = useCallback(async (pageNum: number, isAppend: boolean = false) => {
+    if (!tabParam) return; // Don't fetch if on landing page
+    
     setLoading(true);
     let query = supabase
       .from('posts')
@@ -57,33 +60,75 @@ export function Home() {
       .eq('status', 'open')
       .gt('expires_at', new Date().toISOString());
 
-    if (searchQuery) query = query.ilike('title', `%${searchQuery}%`);
     if (categoryFilter) query = query.eq('category', categoryFilter);
     if (locationFilter) query = query.eq('location', locationFilter);
     if (shareModeFilter) query = query.contains('share_modes', [shareModeFilter]);
 
-    if (tab === 'request' && sortFilter === 'soonest') {
-      query = query.order('needed_by', { ascending: true, nullsFirst: false });
+    const terms = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+    if (terms.length > 0) {
+      const orQuery = terms.map(t => `title.ilike.%${t}%,model_number.ilike.%${t}%,details.ilike.%${t}%`).join(',');
+      query = query.or(orQuery);
     } else {
-      query = query.order('created_at', { ascending: false });
+      if (tab === 'request' && sortFilter === 'soonest') {
+        query = query.order('needed_by', { ascending: true, nullsFirst: false });
+      } else {
+        query = query.order('created_at', { ascending: false });
+      }
+      
+      const start = pageNum * POSTS_PER_PAGE;
+      const end = start + POSTS_PER_PAGE - 1;
+      query = query.range(start, end);
     }
-
-    const start = pageNum * POSTS_PER_PAGE;
-    const end = start + POSTS_PER_PAGE - 1;
-    query = query.range(start, end);
 
     const { data, error } = await query;
     
     if (data) {
-      if (isAppend) {
-        setPosts(prev => [...prev, ...(data as Post[])]);
+      let finalData = data as Post[];
+      
+      if (terms.length > 0) {
+        finalData.forEach((post: any) => {
+          let score = 0;
+          const textToSearch = [post.title, post.category, post.model_number, post.details].join(' ').toLowerCase();
+          for (const term of terms) {
+            if (textToSearch.includes(term)) {
+              score++;
+            }
+          }
+          post._score = score;
+        });
+        
+        finalData = finalData.filter((p: any) => p._score > 0);
+        finalData.sort((a: any, b: any) => {
+          if (b._score !== a._score) return b._score - a._score;
+          if (tab === 'request' && sortFilter === 'soonest') {
+            const dateA = a.needed_by ? new Date(a.needed_by).getTime() : Infinity;
+            const dateB = b.needed_by ? new Date(b.needed_by).getTime() : Infinity;
+            return dateA - dateB;
+          }
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+        
+        const start = pageNum * POSTS_PER_PAGE;
+        const end = start + POSTS_PER_PAGE;
+        const paginatedData = finalData.slice(start, end);
+        
+        if (isAppend) {
+          setPosts(prev => [...prev, ...paginatedData]);
+        } else {
+          setPosts(paginatedData);
+        }
+        setHasMore(finalData.length > end);
       } else {
-        setPosts(data as Post[]);
+        if (isAppend) {
+          setPosts(prev => [...prev, ...finalData]);
+        } else {
+          setPosts(finalData);
+        }
+        setHasMore(finalData.length === POSTS_PER_PAGE);
       }
-      setHasMore(data.length === POSTS_PER_PAGE);
     }
     setLoading(false);
-  }, [tab, searchQuery, categoryFilter, locationFilter, shareModeFilter, sortFilter]);
+  }, [tabParam, tab, searchQuery, categoryFilter, locationFilter, shareModeFilter, sortFilter]);
 
   useEffect(() => {
     fetchStats();
@@ -92,11 +137,12 @@ export function Home() {
 
   useEffect(() => {
     setPage(0);
+    if (!tabParam) return;
     const timeoutId = setTimeout(() => {
       fetchPosts(0, false);
     }, 300);
     return () => clearTimeout(timeoutId);
-  }, [fetchPosts]);
+  }, [fetchPosts, tabParam]);
 
   const loadMore = () => {
     const nextPage = page + 1;
@@ -105,15 +151,9 @@ export function Home() {
   };
 
   const handleActionClick = (type: 'offer' | 'request') => {
-    if (!user) {
-      signIn();
-      return;
-    }
-    if (needsOnboarding) {
-      navigate('/onboarding');
-      return;
-    }
-    navigate(`/new?type=${type}`);
+    const params = new URLSearchParams(searchParams);
+    params.set('tab', type);
+    setSearchParams(params);
   };
 
   const updateParam = (key: string, value: string) => {
@@ -123,36 +163,45 @@ export function Home() {
     setSearchParams(params);
   };
 
-  const noFiltersActive = !searchQuery && !categoryFilter && !locationFilter && !shareModeFilter;
-
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full mx-auto space-y-8">
-      {noFiltersActive && (
+  // If there is no tab parameter, we are on the landing page
+  if (!tabParam) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full mx-auto flex items-center justify-center min-h-[70vh]">
         <motion.div 
           initial={{ y: 20, opacity: 0 }} 
           animate={{ y: 0, opacity: 1 }} 
           transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-3xl p-8 sm:p-12 text-center shadow-lg border border-white/20 dark:border-white/5 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-brand-900/40 dark:to-brand-800/20 backdrop-blur-md"
+          className="relative w-full max-w-4xl overflow-hidden rounded-3xl p-8 sm:p-16 text-center shadow-2xl border border-white/20 dark:border-white/5 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-brand-900/40 dark:to-brand-800/20 backdrop-blur-md"
         >
           <div className="absolute top-0 left-0 w-64 h-64 bg-amber-400/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 animate-blob"></div>
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-orange-400/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 animate-blob" style={{ animationDelay: '2s' }}></div>
           
-          <div className="relative z-10 space-y-8">
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-amber-900 dark:text-amber-100 tracking-tight">
-              Share parts. <span className="text-brand-500">Reduce waste.</span> Build together.
+          <div className="relative z-10 space-y-10">
+            <h1 className="text-4xl sm:text-6xl font-extrabold text-amber-900 dark:text-amber-100 tracking-tight leading-tight">
+              Share parts. <br className="sm:hidden" /><span className="text-brand-500">Reduce waste.</span> <br className="sm:hidden" />Build together.
             </h1>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button onClick={() => handleActionClick('offer')} className="btn-primary text-lg px-8 py-3.5 rounded-2xl">I have parts</button>
-              <button onClick={() => handleActionClick('request')} className="btn-secondary text-lg px-8 py-3.5 rounded-2xl">I need parts</button>
+            <p className="text-lg sm:text-xl text-amber-800/80 dark:text-amber-200/80 max-w-2xl mx-auto">
+              Join the community of students and makers sharing leftover electronic and mechanical parts.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-6">
+              <button onClick={() => handleActionClick('offer')} className="btn-primary text-xl px-10 py-4 rounded-2xl shadow-xl shadow-brand-500/20 hover:scale-105 transition-transform">I have parts</button>
+              <button onClick={() => handleActionClick('request')} className="btn-secondary text-xl px-10 py-4 rounded-2xl shadow-xl hover:scale-105 transition-transform bg-white dark:bg-gray-800">I need parts</button>
             </div>
             {stats.total_given > 0 && (
-              <motion.p initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="inline-block bg-white/60 dark:bg-black/30 backdrop-blur-md px-4 py-2 rounded-full text-brand-700 dark:text-brand-300 font-semibold text-sm shadow-sm border border-white/40 dark:border-white/10">
-                ✨ {stats.total_given} parts given a second life
-              </motion.p>
+              <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="pt-8">
+                <span className="inline-block bg-white/80 dark:bg-black/40 backdrop-blur-md px-6 py-3 rounded-full text-brand-700 dark:text-brand-300 font-semibold text-base shadow-sm border border-white/60 dark:border-white/10">
+                  ✨ {stats.total_given} parts given a second life
+                </span>
+              </motion.div>
             )}
           </div>
         </motion.div>
-      )}
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full mx-auto space-y-8">
 
       {/* Modern segmented control for tabs */}
       <div className="flex bg-gray-200/50 dark:bg-gray-800/50 p-1.5 rounded-2xl backdrop-blur-sm max-w-md mx-auto">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Plus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import type { Post } from '../lib/types';
@@ -155,6 +155,16 @@ export function Home() {
     params.set('tab', type);
     setSearchParams(params);
   };
+  
+  const handleCreatePost = (type: 'offer' | 'request') => {
+    if (!user) {
+      signIn();
+    } else if (needsOnboarding) {
+      navigate('/onboarding');
+    } else {
+      navigate(`/new?type=${type}`);
+    }
+  };
 
   const updateParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams);
@@ -197,7 +207,7 @@ export function Home() {
               <motion.button 
                 whileHover={{ scale: 1.05 }} 
                 whileTap={{ scale: 0.95 }} 
-                onClick={() => handleActionClick('offer')} 
+                onClick={() => handleActionClick('request')} 
                 className="btn-primary text-xl px-10 py-4 rounded-2xl shadow-xl shadow-brand-500/30"
               >
                 I have parts
@@ -205,7 +215,7 @@ export function Home() {
               <motion.button 
                 whileHover={{ scale: 1.05 }} 
                 whileTap={{ scale: 0.95 }} 
-                onClick={() => handleActionClick('request')} 
+                onClick={() => handleActionClick('offer')} 
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-10 py-4 text-xl font-semibold text-white shadow-xl shadow-blue-500/30 transition hover:bg-blue-700"
               >
                 I need parts
@@ -246,15 +256,24 @@ export function Home() {
       </div>
 
       <div className="space-y-4">
-        <div className="relative group">
-          <Search className="absolute left-4 top-3.5 text-gray-400 group-focus-within:text-brand-500 transition-colors" size={20} />
-          <input
-            type="text"
-            className="input-field w-full pl-12 py-3.5 text-base"
-            placeholder="Search parts, models..."
-            value={searchQuery}
-            onChange={(e) => updateParam('q', e.target.value)}
-          />
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative group flex-1">
+            <Search className="absolute left-4 top-3.5 text-gray-400 group-focus-within:text-brand-500 transition-colors" size={20} />
+            <input
+              type="text"
+              className="input-field w-full pl-12 py-3.5 text-base"
+              placeholder="Search parts, models..."
+              value={searchQuery}
+              onChange={(e) => updateParam('q', e.target.value)}
+            />
+          </div>
+          <button 
+            onClick={() => handleCreatePost(tab === 'offer' ? 'request' : 'offer')} 
+            className="btn-primary py-3.5 px-6 shrink-0 shadow-sm sm:w-auto w-full flex items-center justify-center gap-2 text-base"
+          >
+            <Plus className="h-5 w-5" />
+            {tab === 'offer' ? 'Request a Part' : 'List a Part'}
+          </button>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 p-2">
@@ -311,8 +330,13 @@ export function Home() {
         </AnimatePresence>
         
         {!loading && posts.length === 0 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <EmptyState icon={<Search size={32} />} title="No posts found" description="Try adjusting your filters or search query." />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="col-span-full">
+            <EmptyState 
+              icon={<Search size={32} />} 
+              title="No parts found" 
+              description="Try adjusting your search filters, or create a new post to ask the community!" 
+              action={{ label: tab === 'offer' ? 'Request a Part' : 'List a Part', onClick: () => handleCreatePost(tab === 'offer' ? 'request' : 'offer') }}
+            />
           </motion.div>
         )}
         

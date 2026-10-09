@@ -165,16 +165,26 @@ export function Home() {
 
   // If there is no tab parameter, we are on the landing page
   if (!tabParam) {
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      e.currentTarget.style.setProperty('--mouse-x', `${x}px`);
+      e.currentTarget.style.setProperty('--mouse-y', `${y}px`);
+    };
+
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full mx-auto flex items-center justify-center min-h-[70vh]">
         <motion.div 
+          onMouseMove={handleMouseMove}
           initial={{ y: 20, opacity: 0 }} 
           animate={{ y: 0, opacity: 1 }} 
           transition={{ duration: 0.5 }}
-          className="relative w-full max-w-4xl overflow-hidden rounded-3xl p-8 sm:p-16 text-center shadow-2xl border border-white/20 dark:border-white/5 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-brand-900/40 dark:to-brand-800/20 backdrop-blur-md"
+          className="relative w-full max-w-4xl overflow-hidden rounded-3xl p-8 sm:p-16 text-center shadow-2xl border border-white/20 dark:border-white/5 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-brand-900/40 dark:to-brand-800/20 backdrop-blur-md group"
         >
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(251,191,36,0.25), transparent 40%)' }}></div>
           <div className="absolute top-0 left-0 w-64 h-64 bg-amber-400/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 animate-blob"></div>
-          <div className="absolute bottom-0 right-0 w-64 h-64 bg-orange-400/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 animate-blob" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 animate-blob" style={{ animationDelay: '2s' }}></div>
           
           <div className="relative z-10 space-y-10">
             <h1 className="text-4xl sm:text-6xl font-extrabold text-amber-900 dark:text-amber-100 tracking-tight leading-tight">
@@ -184,12 +194,26 @@ export function Home() {
               Join the community of students and makers sharing leftover electronic and mechanical parts.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <button onClick={() => handleActionClick('offer')} className="btn-primary text-xl px-10 py-4 rounded-2xl shadow-xl shadow-brand-500/20 hover:scale-105 transition-transform">I have parts</button>
-              <button onClick={() => handleActionClick('request')} className="btn-secondary text-xl px-10 py-4 rounded-2xl shadow-xl hover:scale-105 transition-transform bg-white dark:bg-gray-800">I need parts</button>
+              <motion.button 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }} 
+                onClick={() => handleActionClick('offer')} 
+                className="btn-primary text-xl px-10 py-4 rounded-2xl shadow-xl shadow-brand-500/30"
+              >
+                I have parts
+              </motion.button>
+              <motion.button 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }} 
+                onClick={() => handleActionClick('request')} 
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-10 py-4 text-xl font-semibold text-white shadow-xl shadow-blue-500/30 transition hover:bg-blue-700"
+              >
+                I need parts
+              </motion.button>
             </div>
             {stats.total_given > 0 && (
               <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="pt-8">
-                <span className="inline-block bg-white/80 dark:bg-black/40 backdrop-blur-md px-6 py-3 rounded-full text-brand-700 dark:text-brand-300 font-semibold text-base shadow-sm border border-white/60 dark:border-white/10">
+                <span className="inline-block bg-white/80 dark:bg-black/40 backdrop-blur-md px-6 py-3 rounded-full text-brand-700 dark:text-brand-300 font-semibold text-base shadow-sm border border-white/60 dark:border-white/10 hover:scale-105 transition-transform cursor-default">
                   ✨ {stats.total_given} parts given a second life
                 </span>
               </motion.div>

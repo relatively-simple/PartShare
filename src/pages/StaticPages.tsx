@@ -6,13 +6,13 @@ export function About() {
       <h1 className="text-3xl font-bold mb-6">About PartShare</h1>
       <div className="card p-6 sm:p-10 space-y-4 text-gray-700 dark:text-gray-300 border-white/20 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl">
         <p>
-          PartShare was built with a simple mission: to help university students and DIY makers share leftover electronic and mechanical parts instead of throwing them away or buying new ones.
+          PartShare was built with a simple mission: to help university students and DIY makers share leftover electronic and mechanical parts. Why would someone throw away parts? They would just keep them and not use them while others buy new ones. That's why we exist.
         </p>
         <p>
           We know how expensive parts can be for projects, and we know how many perfectly good components end up in a box under the bed after a project is finished. PartShare connects makers who have parts with makers who need them.
         </p>
         <p>
-          This is a free, zero-waste community. There are no payments, no shipping fees, and no in-app ads. Let's save money, reduce wait times, and cut down on e-waste together!
+          This is a free, zero-waste community. There are no payments and no shipping fees. Let's save money, reduce wait times, and cut down on e-waste together!
         </p>
       </div>
     </div>
@@ -37,8 +37,8 @@ export function HowItWorks() {
           <p>When you find a match, hit the "Contact on WhatsApp" button. We'll automatically start a chat with the person who posted the listing.</p>
         </div>
         <div>
-          <h3 className="text-xl font-semibold mb-2">4. Meet Up</h3>
-          <p>Arrange a time to meet up in a public spot on campus to hand over the parts. Once the exchange is done, mark your post as "Taken" or "Found"!</p>
+          <h3 className="text-xl font-semibold mb-2">4. Meet Up or Send</h3>
+          <p>Arrange a time to meet up in a public spot to hand over the parts, or you can choose to send it as a parcel. Once the exchange is done, mark your post as "Taken" or "Found"!</p>
         </div>
       </div>
     </div>

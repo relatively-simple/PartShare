@@ -110,8 +110,8 @@ export function PostDetail() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="card p-6 sm:p-10 border-white/20 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-400 to-amber-500"></div>
         <div className="flex flex-wrap items-center gap-3 mb-6">
-          <span className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-sm ${post.type === 'offer' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300'}`}>
-            {post.type.toUpperCase()}
+          <span className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-sm ${post.type === 'offer' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300 dark:border-amber-700/50' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-300 dark:border-blue-700/50'}`}>
+            {post.type === 'offer' ? '📦 AVAILABLE (OFFER)' : '🔍 WANTED (REQUEST)'}
           </span>
           <CategoryChip category={post.category} />
           {post.quantity > 1 && (

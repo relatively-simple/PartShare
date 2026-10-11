@@ -84,8 +84,8 @@ export function NewPost() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto p-6 sm:p-10 rounded-3xl border border-white/20 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl shadow-xl mt-4 md:mt-8 mb-8 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-400 to-amber-500"></div>
-      <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-8 tracking-tight">
-        {postType === 'offer' ? 'List parts you have' : 'Request parts you need'}
+      <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 tracking-tight">
+        Create a Post
       </h1>
       <PostForm 
         postType={postType}

@@ -97,7 +97,7 @@ export function Home() {
           post._score = score;
         });
         
-        finalData = finalData.filter((p: any) => p._score > 0);
+        finalData = finalData.filter((p: any) => p.type === tab && p._score > 0);
         finalData.sort((a: any, b: any) => {
           if (b._score !== a._score) return b._score - a._score;
           if (tab === 'request' && sortFilter === 'soonest') {
@@ -119,12 +119,13 @@ export function Home() {
         }
         setHasMore(finalData.length > end);
       } else {
+        const matchingData = (finalData || []).filter((p: any) => p.type === tab);
         if (isAppend) {
-          setPosts(prev => [...prev, ...finalData]);
+          setPosts(prev => [...prev, ...matchingData]);
         } else {
-          setPosts(finalData);
+          setPosts(matchingData);
         }
-        setHasMore(finalData.length === POSTS_PER_PAGE);
+        setHasMore(matchingData.length === POSTS_PER_PAGE);
       }
     }
     setLoading(false);
@@ -267,13 +268,25 @@ export function Home() {
               onChange={(e) => updateParam('q', e.target.value)}
             />
           </div>
-          <button 
-            onClick={() => handleCreatePost(tab === 'offer' ? 'request' : 'offer')} 
-            className="btn-primary py-3.5 px-6 shrink-0 shadow-sm sm:w-auto w-full flex items-center justify-center gap-2 text-base"
-          >
-            <Plus className="h-5 w-5" />
-            {tab === 'offer' ? 'Request a Part' : 'List a Part'}
-          </button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <button 
+              onClick={() => handleCreatePost(tab)} 
+              className={`py-3.5 px-5 rounded-xl font-bold shadow-sm flex-1 sm:flex-none flex items-center justify-center gap-2 text-base text-white transition-all ${
+                tab === 'offer'
+                  ? 'bg-brand-500 hover:bg-brand-600 shadow-brand-500/20'
+                  : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20'
+              }`}
+            >
+              <Plus className="h-5 w-5" />
+              {tab === 'offer' ? 'Offer a Part' : 'Request a Part'}
+            </button>
+            <button 
+              onClick={() => handleCreatePost(tab === 'offer' ? 'request' : 'offer')} 
+              className="btn-secondary py-3.5 px-4 shrink-0 shadow-sm flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-sm font-medium"
+            >
+              {tab === 'offer' ? '🔍 Request a Part' : '📦 Offer a Part'}
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 p-2">
@@ -333,9 +346,16 @@ export function Home() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="col-span-full">
             <EmptyState 
               icon={<Search size={32} />} 
-              title="No parts found" 
-              description="Try adjusting your search filters, or create a new post to ask the community!" 
-              action={{ label: tab === 'offer' ? 'Request a Part' : 'List a Part', onClick: () => handleCreatePost(tab === 'offer' ? 'request' : 'offer') }}
+              title={tab === 'offer' ? "No available parts found" : "No wanted requests found"} 
+              description={
+                tab === 'offer' 
+                  ? "Couldn't find what you need? Post a request so someone in the community can help you find it!"
+                  : "No requests found for this search. Need a specific part? Be the first to post what you need!"
+              } 
+              action={{ 
+                label: tab === 'offer' ? '🔍 Request This Part' : '🔍 Post a Request', 
+                onClick: () => handleCreatePost('request') 
+              }}
             />
           </motion.div>
         )}

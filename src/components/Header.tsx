@@ -18,7 +18,7 @@ export function Header() {
     if (!user) {
       signIn();
     } else {
-      navigate('/new?type=offer');
+      navigate('/new');
     }
   };
 

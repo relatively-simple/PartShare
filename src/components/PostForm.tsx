@@ -29,8 +29,23 @@ export function PostForm({ initialData, postType, onSubmit, submitLabel, showSav
   const [honeypot, setHoneypot] = useState('');
   const [matchCount, setMatchCount] = useState(0);
 
+  const handleTypeToggle = (newType: PostType) => {
+    setFormData(prev => ({
+      ...prev,
+      type: newType,
+      condition: newType === 'offer' ? (prev.condition || 'used_working') : null,
+      needed_by: newType === 'request' ? (prev.needed_by || '') : undefined,
+    }));
+    setErrors(prev => {
+      const copy = { ...prev };
+      delete copy.condition;
+      delete copy.needed_by;
+      return copy;
+    });
+  };
+
   useEffect(() => {
-    if (postType !== 'request' || !formData.title || formData.title.length < 3) {
+    if (formData.type !== 'request' || !formData.title || formData.title.length < 3) {
       setMatchCount(0);
       return;
     }
@@ -44,7 +59,7 @@ export function PostForm({ initialData, postType, onSubmit, submitLabel, showSav
       setMatchCount(data?.length || 0);
     }, 500);
     return () => clearTimeout(timer);
-  }, [formData.title, formData.model_number, formData.category, postType]);
+  }, [formData.title, formData.model_number, formData.category, formData.type]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -98,9 +113,9 @@ export function PostForm({ initialData, postType, onSubmit, submitLabel, showSav
     try {
       if (isSaveAndAdd && onSaveAndAddAnother) {
         await onSaveAndAddAnother(formData as PostFormData);
-        // Reset mostly, keep location and share_modes
+        // Reset mostly, keep location, share_modes, and current type
         setFormData({
-          type: postType,
+          type: formData.type || postType,
           quantity: 1,
           share_modes: formData.share_modes,
           location: formData.location
@@ -123,6 +138,40 @@ export function PostForm({ initialData, postType, onSubmit, submitLabel, showSav
         <input type="text" id="website" name="website" tabIndex={-1} value={honeypot} onChange={e => setHoneypot(e.target.value)} />
       </div>
 
+      {/* Post Type Selector (Offer vs Request) */}
+      <div className="space-y-2">
+        <label className="label text-base font-semibold">What would you like to do? *</label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1.5 bg-gray-100/80 dark:bg-gray-800/80 rounded-2xl border border-gray-200 dark:border-gray-700">
+          <button
+            type="button"
+            onClick={() => handleTypeToggle('offer')}
+            className={`py-3.5 px-4 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all ${
+              formData.type === 'offer'
+                ? 'bg-brand-500 text-white shadow-md shadow-brand-500/25 scale-[1.01]'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200/50 dark:hover:bg-gray-700/50'
+            }`}
+          >
+            <span>📦 I have parts (Available)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTypeToggle('request')}
+            className={`py-3.5 px-4 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all ${
+              formData.type === 'request'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 scale-[1.01]'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200/50 dark:hover:bg-gray-700/50'
+            }`}
+          >
+            <span>🔍 I need parts (Wanted)</span>
+          </button>
+        </div>
+        <p className="text-xs text-gray-500 dark:text-gray-400 pl-1">
+          {formData.type === 'offer' 
+            ? '📦 This will be listed under "Available Parts" for others to browse.'
+            : '🔍 This will be listed under "Wanted Parts" to ask the community for help.'}
+        </p>
+      </div>
+
       {matchCount > 0 && (
         <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg text-sm flex items-center justify-between">
           <span>💡 Someone already has this! Found {matchCount} possible matches.</span>
@@ -132,7 +181,14 @@ export function PostForm({ initialData, postType, onSubmit, submitLabel, showSav
 
       <div>
         <label className="label">Title *</label>
-        <input type="text" name="title" className="input-field w-full" value={formData.title || ''} onChange={handleChange} placeholder="e.g. Arduino Uno R3" />
+        <input 
+          type="text" 
+          name="title" 
+          className="input-field w-full" 
+          value={formData.title || ''} 
+          onChange={handleChange} 
+          placeholder={formData.type === 'offer' ? "e.g. Arduino Uno R3 (or components you have)" : "e.g. Arduino Uno R3 (or part you need)"} 
+        />
         {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
       </div>
 
@@ -161,7 +217,7 @@ export function PostForm({ initialData, postType, onSubmit, submitLabel, showSav
         {errors.model_number && <p className="text-red-500 text-sm mt-1">{errors.model_number}</p>}
       </div>
 
-      {postType === 'offer' && (
+      {formData.type === 'offer' && (
         <div>
           <label className="label">Condition *</label>
           <select name="condition" className="input-field w-full" value={formData.condition || ''} onChange={handleChange}>
@@ -174,7 +230,7 @@ export function PostForm({ initialData, postType, onSubmit, submitLabel, showSav
         </div>
       )}
 
-      {postType === 'request' && (
+      {formData.type === 'request' && (
         <div>
           <label className="label">Needed By (Optional)</label>
           <input type="date" name="needed_by" className="input-field w-full" value={formData.needed_by || ''} onChange={handleChange} />

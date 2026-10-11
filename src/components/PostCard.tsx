@@ -34,7 +34,14 @@ export function PostCard({ post, showStatus }: PostCardProps) {
         </div>
       )}
       
-      <div className="flex flex-wrap gap-2 mb-3">
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
+          post.type === 'offer'
+            ? 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-700/50'
+            : 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/40 dark:text-blue-200 dark:border-blue-700/50'
+        }`}>
+          {post.type === 'offer' ? '📦 Available' : '🔍 Wanted'}
+        </span>
         <CategoryChip category={post.category} />
         
         {post.condition && (

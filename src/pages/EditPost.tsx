@@ -47,6 +47,7 @@ export function EditPost() {
     const { error } = await supabase
       .from('posts')
       .update({
+        type: data.type,
         title: data.title,
         category: data.category,
         model_number: data.model_number || null,

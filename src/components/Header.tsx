@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, Share2, LogOut, User, Plus } from 'lucide-react';
+import { Menu, X, Share2, LogOut, User, Plus, Package } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { APP_NAME } from '../config';
 import { t } from '../i18n/en';
@@ -26,30 +26,29 @@ export function Header() {
     <header className="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md">
       <div className="mx-auto w-full px-4 sm:px-6 flex h-16 items-center justify-between">
         
-        {/* Left Side: Logo */}
-        <div className="flex items-center w-1/4">
-          <Link to="/" className="text-xl font-bold text-brand-600 dark:text-brand-400">
-            {APP_NAME}
+        {/* Left Side: Logo with Brand Icon */}
+        <div className="flex items-center">
+          <Link to="/" className="flex items-center gap-2.5 text-xl font-bold text-brand-600 dark:text-brand-400 group">
+            <img src="/favicon.svg" alt="PartShare Logo" className="w-8 h-8 rounded-lg shadow-sm group-hover:scale-105 transition-transform" />
+            <span className="tracking-tight">{APP_NAME}</span>
           </Link>
         </div>
-        
-        {/* Center: Navigation (Hidden on mobile) */}
-        <nav className="hidden md:flex flex-1 items-center justify-center gap-6">
-          {user && (
-            <Link to="/me" className="text-sm font-medium hover:text-brand-600 transition">
-              {t.nav.myPosts}
-            </Link>
-          )}
-        </nav>
 
         {/* Right Side: Actions */}
-        <div className="hidden md:flex items-center justify-end gap-4 w-1/4 min-w-max">
-          <button onClick={handlePostClick} className="btn-primary py-1.5 px-3 text-sm flex items-center gap-1 shadow-sm">
+        <div className="hidden md:flex items-center justify-end gap-3 min-w-max">
+          <button onClick={handlePostClick} className="btn-primary py-1.5 px-3.5 text-sm flex items-center gap-1.5 shadow-sm">
             <Plus className="h-4 w-4" />
             Post a Part
           </button>
+
+          {user && (
+            <Link to="/me" className="btn-secondary py-1.5 px-3 text-sm flex items-center gap-1.5 font-medium hover:text-brand-600 transition">
+              <Package className="h-4 w-4 text-brand-500" />
+              <span>{t.nav.myPosts}</span>
+            </Link>
+          )}
           
-          <a href={inviteLink} target="_blank" rel="noopener noreferrer" className="btn-secondary py-1.5 px-3 text-sm flex items-center gap-1">
+          <a href={inviteLink} target="_blank" rel="noopener noreferrer" className="btn-secondary py-1.5 px-3 text-sm flex items-center gap-1.5">
             <Share2 className="h-4 w-4" />
             <span className="hidden lg:inline">{t.nav.inviteFriends}</span>
           </a>

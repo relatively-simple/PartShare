@@ -52,6 +52,16 @@ export function MyPosts() {
     else fetchMyPosts();
   }, [user, navigate]);
 
+  useEffect(() => {
+    if (profile) {
+      setProfileData({
+        display_name: profile.display_name || '',
+        whatsapp: profile.whatsapp ? `+${profile.whatsapp}` : '',
+        location: profile.location || ''
+      });
+    }
+  }, [profile]);
+
   const handleProfileSave = async () => {
     try {
       // Validate minus consent

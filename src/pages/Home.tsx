@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, Filter, Plus } from 'lucide-react';
@@ -7,8 +7,10 @@ import { useAuth } from '../contexts/AuthContext';
 import type { Post } from '../lib/types';
 import { POSTS_PER_PAGE, CATEGORIES, SHARE_MODES, SORT_OPTIONS } from '../config';
 import { PostCard } from '../components/PostCard';
+import { GroupedPostCard } from '../components/GroupedPostCard';
 import { EmptyState } from '../components/EmptyState';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { clusterPosts } from '../lib/clustering';
 
 export function Home() {
   const { user, needsOnboarding, signIn } = useAuth();
@@ -29,6 +31,8 @@ export function Home() {
   const [page, setPage] = useState(0);
   const [uniqueLocations, setUniqueLocations] = useState<string[]>([]);
   const [stats, setStats] = useState<{ total_given: number }>({ total_given: 0 });
+
+  const clusteredGroups = useMemo(() => clusterPosts(posts), [posts]);
 
   const fetchStats = async () => {
     const { data } = await supabase.rpc('public_stats');
@@ -64,7 +68,7 @@ export function Home() {
     if (locationFilter) query = query.eq('location', locationFilter);
     if (shareModeFilter) query = query.contains('share_modes', [shareModeFilter]);
 
-    const terms = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+    const terms = searchQuery.toLowerCase().split(/\s+/).map(t => t.replace(/[%_,()]/g, '').trim()).filter(Boolean);
     if (terms.length > 0) {
       const orQuery = terms.map(t => `title.ilike.%${t}%,model_number.ilike.%${t}%,details.ilike.%${t}%`).join(',');
       query = query.or(orQuery);
@@ -325,9 +329,9 @@ export function Home() {
 
       <motion.div layout className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         <AnimatePresence mode="popLayout">
-          {posts.map(post => (
+          {clusteredGroups.map(group => (
             <motion.div 
-              key={post.id}
+              key={group.id}
               layout
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -336,7 +340,7 @@ export function Home() {
               className="h-full flex"
             >
               <div className="w-full flex-1">
-                <PostCard post={post} />
+                <GroupedPostCard group={group} />
               </div>
             </motion.div>
           ))}

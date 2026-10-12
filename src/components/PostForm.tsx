@@ -45,13 +45,20 @@ export function PostForm({ initialData, postType, onSubmit, submitLabel, showSav
   };
 
   useEffect(() => {
-    if (formData.type !== 'request' || !formData.title || formData.title.length < 3) {
+    if (!initialData?.location && profile?.location && !formData.location) {
+      setFormData(prev => ({ ...prev, location: profile.location }));
+    }
+  }, [profile?.location, initialData?.location]);
+
+  useEffect(() => {
+    if (!formData.title || formData.title.length < 3) {
       setMatchCount(0);
       return;
     }
+    const currentType = formData.type || postType;
     const timer = setTimeout(async () => {
       const { data } = await supabase.rpc('match_posts', {
-        p_for_type: 'request',
+        p_for_type: currentType,
         p_title: formData.title,
         p_model: formData.model_number || null,
         p_category: formData.category || null,
@@ -59,7 +66,7 @@ export function PostForm({ initialData, postType, onSubmit, submitLabel, showSav
       setMatchCount(data?.length || 0);
     }, 500);
     return () => clearTimeout(timer);
-  }, [formData.title, formData.model_number, formData.category, formData.type]);
+  }, [formData.title, formData.model_number, formData.category, formData.type, postType]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -173,9 +180,19 @@ export function PostForm({ initialData, postType, onSubmit, submitLabel, showSav
       </div>
 
       {matchCount > 0 && (
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg text-sm flex items-center justify-between">
-          <span>💡 Someone already has this! Found {matchCount} possible matches.</span>
-          <Link to={`/?tab=offer&q=${encodeURIComponent(formData.model_number || formData.title || '')}`} target="_blank" className="font-semibold underline whitespace-nowrap ml-2">View Matches</Link>
+        <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 p-3.5 rounded-xl text-sm flex items-center justify-between gap-2 shadow-sm">
+          <span>
+            {formData.type === 'offer' 
+              ? `💡 Someone is looking for this! Found ${matchCount} maker request${matchCount > 1 ? 's' : ''}.`
+              : `💡 Someone already has this! Found ${matchCount} possible match${matchCount > 1 ? 'es' : ''}.`}
+          </span>
+          <Link 
+            to={`/?tab=${formData.type === 'offer' ? 'request' : 'offer'}&q=${encodeURIComponent(formData.model_number || formData.title || '')}`} 
+            target="_blank" 
+            className="font-semibold underline whitespace-nowrap ml-2 text-brand-600 dark:text-brand-400 hover:text-brand-700"
+          >
+            View Matches
+          </Link>
         </div>
       )}
 

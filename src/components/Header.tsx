@@ -28,7 +28,7 @@ export function Header() {
         
         {/* Left Side: Logo with Brand Icon */}
         <div className="flex items-center">
-          <Link to="/" className="flex items-center gap-2.5 text-xl font-bold text-brand-600 dark:text-brand-400 group">
+          <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 text-xl font-bold text-brand-600 dark:text-brand-400 group">
             <img src="/favicon.svg" alt="PartShare Logo" className="w-8 h-8 rounded-lg shadow-sm group-hover:scale-105 transition-transform" />
             <span className="tracking-tight">{APP_NAME}</span>
           </Link>

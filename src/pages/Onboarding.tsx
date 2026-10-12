@@ -107,11 +107,11 @@ export function Onboarding() {
           <input 
             type="text" 
             className="input-field w-full font-mono py-3" 
-            placeholder="+1234567890"
+            placeholder="077... or +94..."
             value={formData.whatsapp}
             onChange={e => setFormData({...formData, whatsapp: e.target.value})}
           />
-          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1.5 ml-1">Include country code (e.g. +1... or +44...)</p>
+          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1.5 ml-1">E.g. 0771234567 or +94771234567 (auto-formatted)</p>
           {errors.whatsapp && <p className="text-red-500 text-sm mt-1">{errors.whatsapp}</p>}
         </div>
         

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { MapPin, Calendar, Clock, Package } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { MapPin, Calendar, Clock, Package, Plus } from 'lucide-react';
 import type { Post } from '../lib/types';
 import { CategoryChip } from './CategoryChip';
 import { timeAgo, daysUntil, formatDate } from '../lib/utils';
@@ -12,6 +12,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, showStatus }: PostCardProps) {
+  const navigate = useNavigate();
   const neededByDays = post.needed_by ? daysUntil(post.needed_by) : null;
   const isUrgent = neededByDays !== null && neededByDays <= 7;
   
@@ -85,7 +86,7 @@ export function PostCard({ post, showStatus }: PostCardProps) {
           {post.author_name}
         </span>
         
-        {showStatus && (
+        {showStatus ? (
           <span className={`text-xs font-bold px-2 py-1 rounded-full ${
             post.status === 'open' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300' :
             post.status === 'done' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300' :
@@ -93,6 +94,19 @@ export function PostCard({ post, showStatus }: PostCardProps) {
           }`}>
             {post.status.toUpperCase()}
           </span>
+        ) : (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigate(`/new?type=offer&title=${encodeURIComponent(post.title)}&cat=${post.category}&model=${encodeURIComponent(post.model_number || '')}`);
+            }}
+            className="inline-flex items-center gap-1 text-xs font-semibold py-1 px-2.5 rounded-lg border border-brand-200 dark:border-brand-800 bg-brand-50/70 hover:bg-brand-100 dark:bg-brand-950/40 dark:hover:bg-brand-900/60 text-brand-700 dark:text-brand-300 transition-colors shadow-sm"
+          >
+            <Plus size={12} className="text-brand-500 shrink-0" />
+            <span>{post.type === 'offer' ? 'I have this too' : 'I have this!'}</span>
+          </button>
         )}
       </div>
     </div>

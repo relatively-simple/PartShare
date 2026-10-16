@@ -15,23 +15,28 @@ export function Header() {
   const toggleMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   
   const handlePostClick = () => {
-    if (!user) {
-      signIn();
-    } else {
-      navigate('/new');
-    }
+    navigate('/new?type=offer');
   };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md">
       <div className="mx-auto w-full px-4 sm:px-6 flex h-16 items-center justify-between">
         
-        {/* Left Side: Logo with Brand Icon */}
-        <div className="flex items-center">
+        {/* Left Side: Logo with Brand Icon and Navigation */}
+        <div className="flex items-center gap-6">
           <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 text-xl font-bold text-brand-600 dark:text-brand-400 group">
             <img src="/favicon.svg" alt="PartShare Logo" className="w-8 h-8 rounded-lg shadow-sm group-hover:scale-105 transition-transform" />
             <span className="tracking-tight">{APP_NAME}</span>
           </Link>
+
+          <nav className="hidden md:flex items-center gap-1">
+            <Link to="/?tab=offer" className="px-3 py-1.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition">
+              Available Parts
+            </Link>
+            <Link to="/?tab=request" className="px-3 py-1.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition">
+              Wanted Parts
+            </Link>
+          </nav>
         </div>
 
         {/* Right Side: Actions */}
@@ -90,9 +95,15 @@ export function Header() {
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 py-4 space-y-4 shadow-lg absolute w-full left-0">
-          <nav className="flex flex-col gap-4">
+          <nav className="flex flex-col gap-3">
+            <Link to="/?tab=offer" onClick={toggleMenu} className="text-base font-medium text-gray-800 dark:text-gray-200 hover:text-brand-500 flex items-center gap-2">
+              <span>📦 Available Parts</span>
+            </Link>
+            <Link to="/?tab=request" onClick={toggleMenu} className="text-base font-medium text-gray-800 dark:text-gray-200 hover:text-brand-500 flex items-center gap-2">
+              <span>🔍 Wanted Parts</span>
+            </Link>
             {user && (
-              <Link to="/me" onClick={toggleMenu} className="text-base font-medium">
+              <Link to="/me" onClick={toggleMenu} className="text-base font-medium text-gray-800 dark:text-gray-200 hover:text-brand-500">
                 {t.nav.myPosts}
               </Link>
             )}

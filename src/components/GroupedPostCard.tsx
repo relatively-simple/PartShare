@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, ChevronDown, ChevronUp, MapPin, ExternalLink, Package } from 'lucide-react';
+import { Users, ChevronDown, ChevronUp, MapPin, ExternalLink, Package, Plus } from 'lucide-react';
 import type { GroupedPost } from '../lib/clustering';
 import { PostCard } from './PostCard';
 import { CategoryChip } from './CategoryChip';
@@ -58,6 +58,14 @@ export function GroupedPostCard({ group }: GroupedPostCardProps) {
           {isOffer ? '📦 Available Group' : '🔍 Wanted Group'}
         </span>
         <CategoryChip category={group.category} />
+
+        <Link
+          to={`/new?type=offer&title=${encodeURIComponent(group.canonicalTitle)}&cat=${group.category}&model=${encodeURIComponent(group.model_number || '')}`}
+          className="ml-auto inline-flex items-center gap-1 text-xs font-semibold py-1 px-2.5 rounded-lg border border-brand-200 dark:border-brand-800 bg-brand-50/70 hover:bg-brand-100 dark:bg-brand-950/40 dark:hover:bg-brand-900/60 text-brand-700 dark:text-brand-300 transition-colors shadow-sm"
+        >
+          <Plus size={12} className="text-brand-500" />
+          <span>I have this too</span>
+        </Link>
       </div>
 
       {/* Primary Preview Listing */}
@@ -132,6 +140,14 @@ export function GroupedPostCard({ group }: GroupedPostCardProps) {
                 </Link>
               </div>
             ))}
+
+            <Link
+              to={`/new?type=offer&title=${encodeURIComponent(group.canonicalTitle)}&cat=${group.category}&model=${encodeURIComponent(group.model_number || '')}`}
+              className="p-3 rounded-xl border border-dashed border-brand-300 dark:border-brand-800/80 bg-brand-50/40 hover:bg-brand-50 dark:bg-brand-950/20 dark:hover:bg-brand-950/40 text-brand-700 dark:text-brand-300 flex items-center justify-center gap-1.5 text-xs font-semibold transition-all mt-2"
+            >
+              <Plus size={13} />
+              <span>Have this component too? Add your offer to this group</span>
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>

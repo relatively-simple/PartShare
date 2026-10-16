@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MessageCircle, Share2, AlertTriangle, MapPin, Calendar, Clock } from 'lucide-react';
+import { MessageCircle, Share2, AlertTriangle, MapPin, Calendar, Clock, Plus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -190,6 +190,18 @@ export function PostDetail() {
             Share
           </motion.button>
         </div>
+
+        {!isOwner && (
+          <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-center">
+            <Link
+              to={`/new?type=offer&title=${encodeURIComponent(post.title)}&cat=${post.category}&model=${encodeURIComponent(post.model_number || '')}`}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 dark:text-brand-300 hover:text-brand-800 bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/40 dark:hover:bg-brand-900/60 border border-brand-200 dark:border-brand-800/60 px-5 py-2.5 rounded-xl transition-all shadow-sm"
+            >
+              <Plus size={16} className="text-brand-500" />
+              <span>{post.type === 'offer' ? 'Have this component too? Add your listing' : 'Have this part? Offer it now'}</span>
+            </Link>
+          </div>
+        )}
       </motion.div>
 
       {matches.length > 0 && (

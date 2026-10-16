@@ -35,7 +35,7 @@ export function App() {
               <Route path="/" element={<Layout />}>
                 <Route index element={<Home />} />
                 <Route path="p/:id" element={<PostDetail />} />
-                <Route path="new" element={<RequireAuth><NewPost /></RequireAuth>} />
+                <Route path="new" element={<NewPost />} />
                 <Route path="edit/:id" element={<RequireAuth><EditPost /></RequireAuth>} />
                 <Route path="me" element={<RequireAuth><MyPosts /></RequireAuth>} />
                 <Route path="onboarding" element={<RequireAuth requireOnboarding={false}><Onboarding /></RequireAuth>} />

@@ -162,13 +162,7 @@ export function Home() {
   };
   
   const handleCreatePost = (type: 'offer' | 'request') => {
-    if (!user) {
-      signIn();
-    } else if (needsOnboarding) {
-      navigate('/onboarding');
-    } else {
-      navigate(`/new?type=${type}`);
-    }
+    navigate(`/new?type=${type}`);
   };
 
   const updateParam = (key: string, value: string) => {
@@ -212,9 +206,10 @@ export function Home() {
               <motion.button 
                 whileHover={{ scale: 1.05 }} 
                 whileTap={{ scale: 0.95 }} 
-                onClick={() => handleActionClick('request')} 
-                className="btn-primary text-xl px-10 py-4 rounded-2xl shadow-xl shadow-brand-500/30"
+                onClick={() => handleCreatePost('offer')} 
+                className="btn-primary text-xl px-10 py-4 rounded-2xl shadow-xl shadow-brand-500/30 flex items-center justify-center gap-2"
               >
+                <Plus className="h-6 w-6" />
                 I have parts
               </motion.button>
               <motion.button 
@@ -223,11 +218,23 @@ export function Home() {
                 onClick={() => handleActionClick('offer')} 
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-10 py-4 text-xl font-semibold text-white shadow-xl shadow-blue-500/30 transition hover:bg-blue-700"
               >
+                <Search className="h-6 w-6" />
                 I need parts
               </motion.button>
             </div>
+            
+            <div className="pt-2 text-sm text-gray-600 dark:text-gray-400">
+              <span>Looking for community requests? </span>
+              <button 
+                onClick={() => handleActionClick('request')} 
+                className="font-semibold text-brand-600 dark:text-brand-400 hover:underline inline-flex items-center gap-1"
+              >
+                Browse Wanted Parts &rarr;
+              </button>
+            </div>
+
             {stats.total_given > 0 && (
-              <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="pt-8">
+              <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="pt-4">
                 <span className="inline-block bg-white/80 dark:bg-black/40 backdrop-blur-md px-6 py-3 rounded-full text-brand-700 dark:text-brand-300 font-semibold text-base shadow-sm border border-white/60 dark:border-white/10 hover:scale-105 transition-transform cursor-default">
                   ✨ {stats.total_given} parts given a second life
                 </span>
@@ -273,23 +280,40 @@ export function Home() {
             />
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
-            <button 
-              onClick={() => handleCreatePost(tab)} 
-              className={`py-3.5 px-5 rounded-xl font-bold shadow-sm flex-1 sm:flex-none flex items-center justify-center gap-2 text-base text-white transition-all ${
-                tab === 'offer'
-                  ? 'bg-brand-500 hover:bg-brand-600 shadow-brand-500/20'
-                  : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20'
-              }`}
-            >
-              <Plus className="h-5 w-5" />
-              {tab === 'offer' ? 'Offer a Part' : 'Request a Part'}
-            </button>
-            <button 
-              onClick={() => handleCreatePost(tab === 'offer' ? 'request' : 'offer')} 
-              className="btn-secondary py-3.5 px-4 shrink-0 shadow-sm flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-sm font-medium"
-            >
-              {tab === 'offer' ? '🔍 Request a Part' : '📦 Offer a Part'}
-            </button>
+            {tab === 'offer' ? (
+              <>
+                <button 
+                  onClick={() => handleCreatePost('request')} 
+                  className="py-3.5 px-5 rounded-xl font-bold shadow-sm flex-1 sm:flex-none flex items-center justify-center gap-2 text-base text-white bg-blue-600 hover:bg-blue-700 shadow-blue-500/20 transition-all"
+                >
+                  <Plus className="h-5 w-5" />
+                  Request a Part
+                </button>
+                <button 
+                  onClick={() => handleCreatePost('offer')} 
+                  className="btn-secondary py-3.5 px-4 shrink-0 shadow-sm flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-sm font-medium"
+                >
+                  📦 Offer a Part
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  onClick={() => handleCreatePost('request')} 
+                  className="py-3.5 px-5 rounded-xl font-bold shadow-sm flex-1 sm:flex-none flex items-center justify-center gap-2 text-base text-white bg-blue-600 hover:bg-blue-700 shadow-blue-500/20 transition-all"
+                >
+                  <Plus className="h-5 w-5" />
+                  Request a Part
+                </button>
+                <button 
+                  onClick={() => handleCreatePost('offer')} 
+                  className="btn-primary py-3.5 px-4 shrink-0 shadow-sm flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-sm font-semibold"
+                >
+                  <Plus className="h-4 w-4" />
+                  Offer a Part
+                </button>
+              </>
+            )}
           </div>
         </div>
 
